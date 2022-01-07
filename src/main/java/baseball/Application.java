@@ -17,9 +17,19 @@ public class Application {
             // 입력
             String userNumber = inputUserNumber();
 
+            // 결과
+            boolean isAnswer = getResult(computerNumber, userNumber);
 
+            if (isAnswer) {
+                System.out.println("게임을 새로 시작하려면 1, 종료하려면 2를 입력해주세요.");
+                String isRestart = Console.readLine();
+
+                if (isRestart.equals("2")) {
+                    break;
+                }
+                computerNumber = makeComputerNumber();
+            }
         }
-
     }
 
     private static String makeComputerNumber() {
@@ -102,4 +112,51 @@ public class Application {
         return uniqueSet.size() == 3;
     }
 
+    private static boolean getResult(String computerNumber, String userNumber) {
+        String[] inputNumbers = userNumber.split("");
+        int strikeCount = 0;
+        int ballCount = 0;
+
+        for (int i = 0; i < inputNumbers.length; i++) {
+            int findIndex = computerNumber.indexOf(inputNumbers[i]);
+
+            if (findIndex < 0) {
+                continue;
+            }
+
+            // 동일 자릿수가 같으면
+            if (findIndex == i) {
+                strikeCount++;
+            } else if (findIndex != i) {
+                ballCount++;
+            }
+
+        }
+        printResult(strikeCount, ballCount);
+
+        return strikeCount == 3;
+    }
+
+    private static void printResult(int strikeCount, int ballCount) {
+        String result = makeResultString(strikeCount, ballCount);
+        System.out.println(result);
+    }
+
+    private static String makeResultString(int strikeCount, int ballCount) {
+        StringBuilder result = new StringBuilder();
+
+        if (strikeCount == 3) {
+            result.append("3스트라이크!! 게임 끝.\n");
+        } else if (ballCount == 0 && strikeCount == 0) {
+            result.append("낫싱");
+        } else {
+            if (strikeCount > 0) {
+                result.append(strikeCount).append("스트라이크 ");
+            }
+            if (ballCount > 0) {
+                result.append(ballCount).append("볼");
+            }
+        }
+        return result.toString();
+    }
 }
