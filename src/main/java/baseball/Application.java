@@ -3,43 +3,46 @@ package baseball;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
 import nextstep.utils.Console;
 import nextstep.utils.Randoms;
 
 public class Application {
 
+    private static final String END = "2";
+
     public static void main(String[] args) {
 
         // 컴퓨터 숫자 받기.
-        String computerNumber = makeComputerNumber();
+        String computerNumber = createComputerNumbers();
 
         while (true) {
             // 입력
-            String userNumber = inputUserNumber();
+            String userNumber = getUserNumbers();
 
             // 결과
-            boolean isAnswer = getResult(computerNumber, userNumber);
+            boolean isAnswer = computeResult(computerNumber, userNumber);
 
             if (isAnswer) {
                 System.out.println("게임을 새로 시작하려면 1, 종료하려면 2를 입력해주세요.");
                 String isRestart = Console.readLine();
 
-                if (isRestart.equals("2")) {
+                if (isRestart.equals(END)) {
                     break;
                 }
-                computerNumber = makeComputerNumber();
+                computerNumber = createComputerNumbers();
             }
         }
     }
 
-    private static String makeComputerNumber() {
+    private static String createComputerNumbers() {
         StringBuilder computerNumberBuilder = new StringBuilder();
 
         while (!isThreeDigit(computerNumberBuilder.toString())) {
-            String number = String.valueOf(Randoms.pickNumberInRange(1, 9));
+            String newNumber = String.valueOf(Randoms.pickNumberInRange(1, 9));
 
-            if (!isExistNumber(computerNumberBuilder.toString(), number)) {
-                computerNumberBuilder.append(number);
+            if (!isExistNumber(computerNumberBuilder.toString(), newNumber)) {
+                computerNumberBuilder.append(newNumber);
             }
         }
 
@@ -54,50 +57,44 @@ public class Application {
         return currComputerNumber.indexOf(number) >= 0;
     }
 
-    private static String inputUserNumber() {
-        String userInput;
+    private static String getUserNumbers() {
 
         while (true) {
             System.out.print("숫자를 입력해 주세요 : ");
-            userInput = Console.readLine();
+            String userInput = Console.readLine();
 
             if (isValidate(userInput)) {
-                break;
+                return userInput;
             }
         }
-
-        return userInput;
     }
 
     private static boolean isValidate(String userInput) {
+        boolean isValid = true;
 
         if (!isValidateLength(userInput)) {
             System.out.println("[Error] 3자리 숫자를 입력해 주세요.");
-
-            return false;
+            isValid = false;
         }
         if (!isValidateNumberRange(userInput)) {
-            System.out.println("[Error] 0이 아닌 숫자만 입력해 주세요.");
-            return false;
+            System.out.println("[Error] 1-9 범위의 숫자만 입력해 주세요.");
+            isValid = false;
         }
         if (!isUniqueDigit(userInput)) {
             System.out.println("[Error] 각 자릿수가 중복되지 않게 입력해 주세요.");
-            return false;
+            isValid = false;
         }
 
-        return true;
+        return isValid;
     }
 
     private static boolean isValidateLength(String userInput) {
         return userInput.length() == 3;
     }
 
-    private static boolean isValidateNumberRange(String userInput) {
-        for (char number : userInput.toCharArray()) {
-            if (number == '0') {
-                return false;
-            }
-            if (!Character.isDigit(number)) {
+    private static boolean isValidateNumberRange(String userInputNumbers) {
+        for (char number : userInputNumbers.toCharArray()) {
+            if (number == '0' || !Character.isDigit(number)) {
                 return false;
             }
         }
@@ -109,25 +106,25 @@ public class Application {
         Set<String> uniqueSet = new HashSet<>();
         uniqueSet.addAll(Arrays.asList(userInput.split("")));
 
-        return uniqueSet.size() == 3;
+        return uniqueSet.size() == userInput.length();
     }
 
-    private static boolean getResult(String computerNumber, String userNumber) {
-        String[] inputNumbers = userNumber.split("");
+    private static boolean computeResult(String computerNumbers, String userInputNumbers) {
+        String[] inputNumbers = userInputNumbers.split("");
         int strikeCount = 0;
         int ballCount = 0;
 
         for (int i = 0; i < inputNumbers.length; i++) {
-            int findIndex = computerNumber.indexOf(inputNumbers[i]);
+            int findIndex = computerNumbers.indexOf(inputNumbers[i]);
 
             if (findIndex < 0) {
                 continue;
             }
 
-            // 동일 자릿수가 같으면
             if (findIndex == i) {
                 strikeCount++;
-            } else if (findIndex != i) {
+            }
+            else{
                 ballCount++;
             }
 
